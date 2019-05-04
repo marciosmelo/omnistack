@@ -5,12 +5,38 @@ import { KeyboardAvoidingView,
          View, 
          TextInput, 
          TouchableOpacity, 
+         AsyncStorage,
          StyleSheet 
         } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class Login extends Component {
+  state = {
+    username: '',
+  };
+
+  async componentDidMount() {
+    const username = await AsyncStorage.getItem('@OmniStack:username');
+
+    if (username) {
+      this.props.navigation.navigate('Timeline')
+    }
+  }
+  handleInputChange = (username) => {
+    this.setState({ username });
+  };
+
+  handleLogin = async () => {
+    const { username } = this.state;
+
+    if (!username.length) return;
+
+    await AsyncStorage.setItem('@OmniStack:username', username);
+  
+    this.props.navigation.navigate('Timeline');
+  };
+
   render() {
     return (
     <KeyboardAvoidingView behavior="padding" style={styles.container} >
@@ -22,11 +48,13 @@ export default class Login extends Component {
         <TextInput
           style={styles.input}
           placeholder="Nome de usuário"
-          //value={}
+          value={this.state.username}
+          onChangeText={this.handleInputChange}
+          onSubmitEditing={this.handleLogin}
           returnKeyType="send"
           />
 
-          <TouchableOpacity onPress={() =>{}} style={styles.button}>
+          <TouchableOpacity onPress={this.handleLogin} style={styles.button}>
             <Text style={styles.buttonText}>Entrar</Text>
           </TouchableOpacity>
       </View>
